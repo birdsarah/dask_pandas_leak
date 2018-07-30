@@ -14,10 +14,11 @@ test_data = os.path.join(project_dir, 'test_data', 'large_random.csv')
 
 def main():
     process = psutil.Process()
+    e = ThreadPoolExecutor(max_workers=8)
     print('before:', process.memory_info().rss // 1e6, 'MB')
-    for i in range(8):
-        pd.read_csv(test_data, engine='c')
+    list(e.map(pd.read_csv, [test_data] * 8))
     time.sleep(2)
+    gc.collect()
     print('after:', process.memory_info().rss // 1e6, 'MB')
 
 if __name__ == '__main__':
